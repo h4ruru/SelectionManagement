@@ -3,42 +3,49 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
 import { Link, Route, Routes } from "react-router-dom";
 import SelectionDragAndDrop from "./selectionDragAndDrop";
-import SelectionDetail from "./selectionDetail";
 
 const SelectionList = () => {
   const [selections, setSelections] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Firestoreからデータを取得
   useEffect(() => {
     const fetchSelections = async () => {
-      const querySnapshot = await getDocs(collection(db, "selections"));
-      setSelections(querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      try {
+        const querySnapshot = await getDocs(collection(db, "selections"));
+        const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        console.log("Fetched selections:", data);
+        setSelections(data);
+      } catch (error) {
+        console.error("Error fetching selections: ", error);
+      } finally {
+        setLoading(false); // データ取得後にloadingをfalseに設定
+      }
     };
-
+  
     fetchSelections();
   }, []);
+  
+
+  // ローディング中の表示
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Routes>
-      {/* メインリスト画面 */}
       <Route
-        path="/"
+        path="*"
         element={
           <div>
             <h1>Selection List</h1>
-            {/* Create New Company ボタン */}
             <Link to="/add">
               <button>Create New Company</button>
             </Link>
-
-            {/* Drag and Drop Component */}
             <SelectionDragAndDrop selections={selections} />
           </div>
         }
       />
-
-      {/* 詳細画面 */}
-      <Route path="/detail/:id" element={<SelectionDetail selections={selections} />} />
     </Routes>
   );
 };

@@ -4,12 +4,15 @@ import { CompanyItemTypes } from "./displayItems"; // アイテムタイプを�
 import { Link } from "react-router-dom";
 import { doc, updateDoc, getDocs, collection } from "firebase/firestore"; // FirestoreからdocとupdateDocをインポート
 import { db } from "../../firebase"; // Firebase設定のインポート
+import SelectionDetailModal from "./selectionDetailModal"; // ポップアップ用のモーダルをインポート
 
 // ドロップ可能なステータス
 const statusOptions = ["Selection", "In Progress", "Done", "1", "2"];
 
 const SelectionDragAndDrop = () => {
   const [selections, setSelections] = useState([]);
+  const [selectedSelection, setSelectedSelection] = useState(null); // モーダル用に選択したアイテムを保存
+  const [isModalOpen, setIsModalOpen] = useState(false); // モーダルの状態管理
 
   // 初期データをFirestoreから取得する処理
   useEffect(() => {
@@ -28,6 +31,16 @@ const SelectionDragAndDrop = () => {
 
     fetchSelections();
   }, []);
+
+  const openModal = (selection) => {
+    setSelectedSelection(selection);
+    setIsModalOpen(true); // モーダルを開く
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedSelection(null); // モーダルを閉じる
+  };
 
   // アイテムを移動させる処理
   const moveItem = async (item, newStatus) => {
@@ -56,14 +69,20 @@ const SelectionDragAndDrop = () => {
           status={status}
           selections={selections.filter((item) => item.status === status)} // 各ステータスにフィルタリング
           moveItem={moveItem} // moveItemを渡す
+          openModal={openModal} // openModalを渡す
         />
       ))}
+
+      {/* モーダルが開いているときにポップアップを表示 */}
+      {isModalOpen && selectedSelection && (
+        <SelectionDetailModal selection={selectedSelection} closeModal={closeModal} />
+      )}
     </div>
   );
 };
 
 // ドラッグアンドドロップ用のステータスカラム
-const StatusColumn = ({ status, selections, moveItem }) => {
+const StatusColumn = ({ status, selections, moveItem, openModal }) => {
   const [{ isOver }, drop] = useDrop({
     accept: CompanyItemTypes.SELECTION, // ドロップできるアイテムタイプを指定
     drop: (item) => moveItem(item, status), // ドロップ時の処理
@@ -85,14 +104,19 @@ const StatusColumn = ({ status, selections, moveItem }) => {
     >
       <h3>{status}</h3>
       {selections.map((selection) => (
-        <SelectionItemWithDrag key={selection.id} selection={selection} moveItem={moveItem} />
+        <SelectionItemWithDrag
+          key={selection.id}
+          selection={selection}
+          moveItem={moveItem}
+          openModal={openModal} // モーダルを開くための関数を渡す
+        />
       ))}
     </div>
   );
 };
 
 // ドラッグ可能な選択アイテム
-const SelectionItemWithDrag = ({ selection, moveItem }) => {
+const SelectionItemWithDrag = ({ selection, moveItem, openModal }) => {
   const [{ isDragging }, drag] = useDrag({
     type: CompanyItemTypes.SELECTION, // ドラッグするアイテムのタイプを指定
     item: { ...selection }, // ドラッグするアイテムのデータを指定（必ず新しいオブジェクトを渡す）
@@ -117,6 +141,9 @@ const SelectionItemWithDrag = ({ selection, moveItem }) => {
     >
       <div style={{ flex: 1 }}>{selection.title}</div>
 
+      {/* 詳細ボタン */}
+      <button onClick={() => openModal(selection)} style={{ marginLeft: "10px" }}>Details</button>
+
       {/* 編集ボタン */}
       <Link to={`/update/${selection.id}`}>
         <button style={{ marginLeft: "10px" }}>Edit</button>
@@ -130,4 +157,5 @@ const SelectionItemWithDrag = ({ selection, moveItem }) => {
   );
 };
 
+// 修正：エクスポートを追加
 export default SelectionDragAndDrop;
