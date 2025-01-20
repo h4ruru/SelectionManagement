@@ -1,23 +1,33 @@
-// src/components/selections/companyDelete.js
 import React, { useState, useEffect } from "react";
-import { useParams, Navigate } from "react-router-dom";  // Navigateをインポート
+import { useParams, Navigate, useNavigate } from "react-router-dom";  // useNavigateをインポート
 import { doc, getDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../../firebase";
+import { getAuth } from "firebase/auth";
 
 const CompanyDelete = () => {
   const { id } = useParams();
   const [company, setCompany] = useState(null);
-  const [redirect, setRedirect] = useState(false);  // リダイレクトのための状態
+  const [redirect, setRedirect] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();  // useNavigate を使って遷移を管理
 
   useEffect(() => {
     const fetchCompany = async () => {
-      const docRef = doc(db, "selections", id);  // "selections" コレクションを使用
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+
+      if (!currentUser) {
+        setError("You must be logged in to delete this company.");
+        return;
+      }
+
+      const docRef = doc(db, "users", currentUser.uid, "selections", id);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         setCompany(docSnap.data());
       } else {
-        console.log("No such document!");
+        setError("No such document!");
       }
     };
 
@@ -25,14 +35,32 @@ const CompanyDelete = () => {
   }, [id]);
 
   const handleDelete = async () => {
-    const docRef = doc(db, "selections", id); // "selections" コレクションを使用
-    await deleteDoc(docRef);
-    alert("Company deleted!");
-    setRedirect(true);  // 削除完了後にリダイレクト状態を設定
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      setError("You must be logged in to delete this company.");
+      return;
+    }
+
+    const docRef = doc(db, "users", currentUser.uid, "selections", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      await deleteDoc(docRef);
+      alert("Company deleted!");
+      setRedirect(true);
+    } else {
+      setError("No such document!");
+    }
+  };
+
+  const handleBackToSelectionList = () => {
+    navigate("/");  // 戻るボタンを押したら SelectionList 画面に遷移
   };
 
   if (redirect) {
-    return <Navigate to="/" />;  // SelectionListにリダイレクト
+    return <Navigate to="/" />;  // 削除後、SelectionListにリダイレクト
   }
 
   if (!company) return <div>Loading...</div>;
@@ -40,8 +68,12 @@ const CompanyDelete = () => {
   return (
     <div>
       <h1>Delete Company</h1>
+      {error && <div>Error: {error}</div>}
       <p>Are you sure you want to delete this company?</p>
       <button onClick={handleDelete}>Yes, Delete</button>
+
+      {/* 戻るボタン */}
+      <button onClick={handleBackToSelectionList}>Back to Selection List</button>
     </div>
   );
 };

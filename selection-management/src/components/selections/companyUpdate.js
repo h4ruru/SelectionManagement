@@ -1,32 +1,43 @@
-// src/components/selections/companyUpdate.js
 import React, { useState, useEffect } from "react";
-import { useParams, Navigate } from "react-router-dom";  // Navigateをインポート
+import { useParams, Navigate, useNavigate } from "react-router-dom";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
+import { getAuth } from "firebase/auth";
 
 const CompanyUpdate = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [company, setCompany] = useState(null);
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState("");
-  const [description, setDescription] = useState("");  // 新しいフィールド
-  const [location, setLocation] = useState("");  // 新しいフィールド
-  const [redirect, setRedirect] = useState(false);  // リダイレクトのための状態
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [redirect, setRedirect] = useState(false);
+  const [error, setError] = useState(null);
+
+  const forbiddenChars = /[<>/\\|{}*]/;
 
   useEffect(() => {
     const fetchCompany = async () => {
-      const docRef = doc(db, "selections", id);  // "selections" コレクションを使用
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        setError("You must be logged in to view this page.");
+        return;
+      }
+
+      const docRef = doc(db, "users", currentUser.uid, "selections", id);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const companyData = docSnap.data();
         setCompany(companyData);
-        setTitle(companyData.title);  // titleを表示
+        setTitle(companyData.title);
         setStatus(companyData.status);
-        setDescription(companyData.description || "");  // descriptionを表示（存在しない場合は空文字）
-        setLocation(companyData.location || "");  // locationを表示（存在しない場合は空文字）
+        setDescription(companyData.description || "");
+        setLocation(companyData.location || "");
       } else {
-        console.log("No such document!");
+        setError("No such document!");
       }
     };
 
@@ -34,19 +45,56 @@ const CompanyUpdate = () => {
   }, [id]);
 
   const handleUpdate = async () => {
-    const docRef = doc(db, "selections", id); // "selections" コレクションを使用
-    await updateDoc(docRef, {
-      title,
-      status,
-      description,
-      location
-    });
-    alert("Company updated!");
-    setRedirect(true);  // 更新完了後にリダイレクト状態を設定
+    try {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        setError("You must be logged in to update this company.");
+        return;
+      }
+
+      const docRef = doc(db, "users", currentUser.uid, "selections", id);
+      await updateDoc(docRef, {
+        title,
+        status,
+        description,
+        location
+      });
+      alert("Company updated!");
+      setRedirect(true); 
+    } catch (error) {
+      console.error("Error updating document:", error);
+      setError("Error updating document: " + error.message);
+    }
+  };
+
+  const handleBack = () => {
+    navigate("/"); 
+  };
+
+  const handleTitleChange = (e) => {
+    const newTitle = e.target.value;
+    if (newTitle.length <= 45 && !forbiddenChars.test(newTitle)) {
+      setTitle(newTitle);
+    }
+  };
+
+  const handleDescriptionChange = (e) => {
+    const newDescription = e.target.value;
+    if (!forbiddenChars.test(newDescription)) {
+      setDescription(newDescription);
+    }
+  };
+
+  const handleLocationChange = (e) => {
+    const newLocation = e.target.value;
+    if (!forbiddenChars.test(newLocation)) {
+      setLocation(newLocation);
+    }
   };
 
   if (redirect) {
-    return <Navigate to="/" />;  // SelectionListにリダイレクト
+    return <Navigate to="/" />; 
   }
 
   if (!company) return <div>Loading...</div>;
@@ -54,16 +102,14 @@ const CompanyUpdate = () => {
   return (
     <div>
       <h1>Update Company</h1>
+      {error && <div>Error: {error}</div>}
       <form onSubmit={(e) => { e.preventDefault(); handleUpdate(); }}>
-        {/* 会社名入力フィールド */}
         <input
           type="text"
           placeholder="Company Name"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={handleTitleChange}
         />
-        
-        {/* 状態選択フィールド */}
         <select onChange={(e) => setStatus(e.target.value)} value={status}>
           <option value="Selection">Selection</option>
           <option value="In Progress">In Progress</option>
@@ -71,28 +117,24 @@ const CompanyUpdate = () => {
           <option value="1">1</option>
           <option value="2">2</option>
         </select>
-        
-        {/* 会社の説明入力フィールド */}
         <textarea
           placeholder="Description"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={handleDescriptionChange}
         />
-        
-        {/* 会社の所在地入力フィールド */}
         <input
           type="text"
           placeholder="Location"
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          onChange={handleLocationChange}
         />
-        
-        {/* 更新ボタン */}
         <button type="submit">Update</button>
       </form>
+
+      <button onClick={handleBack}>Back to Selection List</button>
+      <p>&lt; &gt; / \\ | {`{`} {`}`} * are not available</p>
     </div>
   );
 };
 
 export default CompanyUpdate;
-

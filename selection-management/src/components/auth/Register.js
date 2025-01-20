@@ -1,20 +1,47 @@
-// src/components/auth/Register.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // useNavigateをインポート
+import { useNavigate } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // ローディング状態の追加
   const navigate = useNavigate();
+
+  const forbiddenChars = /[<>/\\|{}*]/;
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    // アカウント作成処理（仮）
-    // Firebase auth の登録処理を追加してください
+    if (forbiddenChars.test(email)) {
+      setError("Email contains invalid characters.");
+      return;
+    }
 
-    // 登録成功後にリダイレクト
-    navigate("/login"); // 登録後にログインページへ遷移
+    if (forbiddenChars.test(password)) {
+      setError("password contains invalid characters.");
+      return;
+    }
+
+    setIsLoading(true); // ローディング開始
+    setError(""); // エラーメッセージをクリア
+
+    if (!email || !password) {
+      setError("Please fill in both fields.");
+      setIsLoading(false); // ローディング終了
+      return;
+    }
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      navigate("/login");
+    } catch (err) {
+      setError("Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false); // ローディング終了
+    }
   };
 
   return (
@@ -33,11 +60,13 @@ const Register = () => {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
         />
-        <button type="submit">Register</button>
+        <button type="submit" disabled={isLoading}>Register</button>
       </form>
+      {error && <p>{error}</p>}
+      {isLoading && <p>Loading...</p>} {/* ローディング中メッセージ */}
       <div>
+        <p>&lt; &gt; / \\ | {`{`} {`}`} * are not available</p>
         <p>Already have an account?</p>
-        {/* Loginページへのリンク */}
         <button onClick={() => navigate("/login")}>Login</button>
       </div>
     </div>
