@@ -60,7 +60,7 @@ const SelectionList = () => {
       <Logout />
       {user && (
         <Link to="/add">
-          <button>Create New Company</button>
+          <button>新規企業の登録</button>
         </Link>
       )}
       <SelectionDragAndDrop selections={selections} />

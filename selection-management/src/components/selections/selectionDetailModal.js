@@ -6,9 +6,10 @@ const SelectionDetailModal = ({ selection, closeModal }) => {
       <div style={modalStyles.modal}>
         <h2>Selection Detail</h2>
         <p><strong>ID:</strong> {selection.id}</p>
-        <p><strong>Title:</strong> {selection.title}</p>
-        <p><strong>Status:</strong> {selection.status}</p>
-        <p><strong>Description:</strong> {selection.description}</p>
+        <p><strong>社名:</strong> {selection.title}</p>
+        <p><strong>状態:</strong> {selection.status}</p>
+        <p><strong>所在地:</strong> {selection.location}</p>
+        <p><strong>詳細:</strong> {selection.description}</p>
 
         <button onClick={closeModal}>Close</button>
       </div>

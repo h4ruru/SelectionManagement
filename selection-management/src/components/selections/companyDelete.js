@@ -48,7 +48,7 @@ const CompanyDelete = () => {
 
     if (docSnap.exists()) {
       await deleteDoc(docRef);
-      alert("Company deleted!");
+      alert("削除が完了しました！");
       setRedirect(true);
     } else {
       setError("No such document!");
@@ -67,13 +67,13 @@ const CompanyDelete = () => {
 
   return (
     <div>
-      <h1>Delete Company</h1>
+      <h1>登録企業の削除</h1>
       {error && <div>Error: {error}</div>}
-      <p>Are you sure you want to delete this company?</p>
-      <button onClick={handleDelete}>Yes, Delete</button>
+      <p>本当に削除してもよろしいでしょうか？</p>
+      <button onClick={handleDelete}>削除</button>
 
       {/* 戻るボタン */}
-      <button onClick={handleBackToSelectionList}>Back to Selection List</button>
+      <button onClick={handleBackToSelectionList}>Selection Listに戻る</button>
     </div>
   );
 };
