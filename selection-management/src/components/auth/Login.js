@@ -21,7 +21,7 @@ const Login = () => {
     }
 
     if (forbiddenChars.test(password)) {
-      setError("password contains invalid characters.");
+      setError("Password contains invalid characters.");
       return;
     }
 
@@ -37,19 +37,14 @@ const Login = () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-  
-      // ログイン成功後に userId を localStorage に保存
-      localStorage.setItem("userId", user.uid);
-      console.log(`User UID saved to localStorage: ${user.uid}`); // 保存確認のログ
-  
-      navigate("/");
+      console.log(`User UID: ${user.uid}`); // UIDのログ出力
+      navigate("/"); // ログイン成功後、SelectionListにリダイレクト
     } catch (err) {
       setError("Invalid email or password.");
     } finally {
       setIsLoading(false); // ローディング終了
     }
   };
-  
 
   return (
     <div>
