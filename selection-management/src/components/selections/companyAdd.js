@@ -69,43 +69,43 @@ const CompanyAdd = () => {
 
   return (
     <div>
-      <h1>Add Company</h1>
+      <h1>新規企業の登録</h1>
       <form onSubmit={handleAddCompany}>
         <input
           type="text"
-          placeholder="Company Name"
+          placeholder="社名"
           value={title}
           onChange={handleTitleChange}
           required
         />
         <select onChange={(e) => setStatus(e.target.value)} value={status}>
-          <option value="Selection">Selection</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Done">Done</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
+          <option value="説明会">説明会</option>
+          <option value="一次面接">一次面接</option>
+          <option value="二次面接">二次面接</option>
+          <option value="三次面接">三次面接</option>
+          <option value="最終面接">最終面接</option>
         </select>
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={handleDescriptionChange}
-          required
-        />
         <input
           type="text"
-          placeholder="Location"
+          placeholder="所在地"
           value={location}
           onChange={handleLocationChange}
           required
         />
+        <textarea
+          placeholder="詳細"
+          value={description}
+          onChange={handleDescriptionChange}
+          required
+        />
         <button type="submit" disabled={loading}>
-          {loading ? "Creating..." : "Create Company"}
+          {loading ? "登録中..." : "企業登録"}
         </button>
       </form>
-      <p>&lt; &gt; / \\ | {`{`} {`}`} * are not available</p>
+      <p>&lt; &gt; / \\ | {`{`} {`}`} * は使用することができません。</p>
 
       {/* 戻るボタン */}
-      <button onClick={handleBackToSelectionList}>Back to Selection List</button>
+      <button onClick={handleBackToSelectionList}>Selection Listに戻る</button>
     </div>
   );
 };

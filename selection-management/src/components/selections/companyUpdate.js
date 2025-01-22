@@ -58,10 +58,10 @@ const CompanyUpdate = () => {
         title,
         status,
         description,
-        location
+        location,
       });
-      alert("Company updated!");
-      setRedirect(true); 
+      alert("企業情報が更新されました！");
+      setRedirect(true);
     } catch (error) {
       console.error("Error updating document:", error);
       setError("Error updating document: " + error.message);
@@ -69,7 +69,7 @@ const CompanyUpdate = () => {
   };
 
   const handleBack = () => {
-    navigate("/"); 
+    navigate("/");
   };
 
   const handleTitleChange = (e) => {
@@ -94,45 +94,91 @@ const CompanyUpdate = () => {
   };
 
   if (redirect) {
-    return <Navigate to="/" />; 
+    return <Navigate to="/" />;
   }
 
   if (!company) return <div>Loading...</div>;
 
   return (
     <div>
-      <h1>Update Company</h1>
+      {/* 上部ボタン */}
+      <div>
+        <button
+          onClick={handleBack}
+          style={{
+            padding: "10px 20px",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Selection Listに戻る
+        </button>
+      </div>
+
+      <h1>企業情報の更新</h1>
       {error && <div>Error: {error}</div>}
-      <form onSubmit={(e) => { e.preventDefault(); handleUpdate(); }}>
-        <input
-          type="text"
-          placeholder="Company Name"
-          value={title}
-          onChange={handleTitleChange}
-        />
-        <select onChange={(e) => setStatus(e.target.value)} value={status}>
-          <option value="Selection">Selection</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Done">Done</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-        </select>
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={handleDescriptionChange}
-        />
-        <input
-          type="text"
-          placeholder="Location"
-          value={location}
-          onChange={handleLocationChange}
-        />
-        <button type="submit">Update</button>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleUpdate();
+        }}
+      >
+        <div>
+          <input
+            type="text"
+            placeholder="社名"
+            value={title}
+            onChange={handleTitleChange}
+            style={{ display: "block", marginBottom: "10px", padding: "10px", width: "100%" }}
+          />
+          <select
+            onChange={(e) => setStatus(e.target.value)}
+            value={status}
+            style={{ display: "block", marginBottom: "10px", padding: "10px", width: "100%" }}
+          >
+            <option value="説明会">説明会</option>
+            <option value="一次面接">一次面接</option>
+            <option value="二次面接">二次面接</option>
+            <option value="三次面接">三次面接</option>
+            <option value="最終面接">最終面接</option>
+          </select>
+          <input
+            type="text"
+            placeholder="所在地"
+            value={location}
+            onChange={handleLocationChange}
+            style={{ display: "block", marginBottom: "10px", padding: "10px", width: "100%" }}
+          />
+        </div>
+        <div>
+          <textarea
+            placeholder="詳細"
+            value={description}
+            onChange={handleDescriptionChange}
+            style={{
+              display: "block",
+              marginBottom: "10px",
+              padding: "10px",
+              width: "100%",
+              minHeight: "100px",
+            }}
+          />
+        </div>
+        <button
+          type="submit"
+          style={{
+            padding: "10px 20px",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          更新
+        </button>
       </form>
 
-      <button onClick={handleBack}>Back to Selection List</button>
-      <p>&lt; &gt; / \\ | {`{`} {`}`} * are not available</p>
+      <p>&lt; &gt; / \\ | {`{`} {`}`} * は使用することができません。</p>
     </div>
   );
 };
