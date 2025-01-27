@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";  // useNavigate をインポート
+import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
 import { getAuth } from "firebase/auth";
 import { collection, addDoc } from "firebase/firestore";
@@ -71,33 +71,50 @@ const CompanyAdd = () => {
     <div>
       <h1>新規企業の登録</h1>
       <form onSubmit={handleAddCompany}>
-        <input
-          type="text"
-          placeholder="社名"
-          value={title}
-          onChange={handleTitleChange}
-          required
-        />
-        <select onChange={(e) => setStatus(e.target.value)} value={status}>
-          <option value="説明会">説明会</option>
-          <option value="一次面接">一次面接</option>
-          <option value="二次面接">二次面接</option>
-          <option value="三次面接">三次面接</option>
-          <option value="最終面接">最終面接</option>
-        </select>
-        <input
-          type="text"
-          placeholder="所在地"
-          value={location}
-          onChange={handleLocationChange}
-          required
-        />
-        <textarea
-          placeholder="詳細"
-          value={description}
-          onChange={handleDescriptionChange}
-          required
-        />
+        <div>
+          <input
+            type="text"
+            placeholder="社名"
+            value={title}
+            onChange={handleTitleChange}
+            style={{ display: "block", marginBottom: "10px", padding: "10px", width: "100%" }}
+            required
+          />
+          <select 
+            onChange={(e) => setStatus(e.target.value)}
+            value={status}
+            style={{ display: "block", marginBottom: "10px", padding: "10px", width: "100%" }}
+          >
+            <option value="説明会">説明会</option>
+            <option value="一次面接">一次面接</option>
+            <option value="二次面接">二次面接</option>
+            <option value="三次面接">三次面接</option>
+            <option value="最終面接">最終面接</option>
+          </select>
+          <input
+            type="text"
+            placeholder="所在地"
+            value={location}
+            onChange={handleLocationChange}
+            style={{ display: "block", marginBottom: "10px", padding: "10px", width: "100%" }}
+            required
+          />
+        </div>
+        <div>
+          <textarea
+            placeholder="詳細"
+            value={description}
+            onChange={handleDescriptionChange}
+            style={{
+              display: "block",
+              marginBottom: "10px",
+              padding: "10px",
+              width: "100%",
+              minHeight: "100px",
+            }}
+            required
+          />
+        </div>
         <button type="submit" disabled={loading}>
           {loading ? "登録中..." : "企業登録"}
         </button>
