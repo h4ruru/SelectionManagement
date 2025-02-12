@@ -7,7 +7,7 @@ import { doc, updateDoc, getDocs, collection } from "firebase/firestore";
 import { Link } from "react-router-dom";
 import SelectionDetailModal from "./selectionDetailModal";
 
-const statusOptions = ["説明会", "一次面接", "二次面接", "三次面接", "最終面接"];
+const statusOptions = ["説明会", "一次面接", "一次面接結果待ち", "二次面接", "二次面接結果待ち", "三次面接", "三次面接結果待ち", "最終面接", "最終面接結果待ち", "内定",];
 
 const SelectionDragAndDrop = () => {
   const [selections, setSelections] = useState([]);
@@ -16,6 +16,8 @@ const SelectionDragAndDrop = () => {
 
   // 各ステータス枠への参照
   const sectionRefs = useRef({});
+
+  const scrollInterval = useRef(null);
 
   // 初期データをFirestoreから取得する処理
   useEffect(() => {
@@ -80,6 +82,61 @@ const SelectionDragAndDrop = () => {
     sectionRefs.current[status]?.scrollIntoView({ behavior: "smooth" });
   };
 
+  useEffect(() => {
+
+    const handleDragOver = (event) => {
+      event.preventDefault();
+      const { clientY } = event;
+      
+      let scrollSpeed = 0;
+      let scrollIntervalTime = 0;
+  
+      // 位置に応じてスクロール速度を変更
+      if (clientY < 100) {
+        scrollSpeed = 0.001; // 上端ギリギリなら少し速く
+        scrollIntervalTime = 0.001;
+      } else if (clientY > window.innerHeight - 100) {
+        scrollSpeed = 0.001;
+        scrollIntervalTime = 0.001;
+      } else {
+        // スクロール不要なら停止
+        if (scrollInterval.current) {
+          clearInterval(scrollInterval.current);
+          scrollInterval.current = null;
+        }
+        return;
+      }
+  
+      // 既存のスクロール処理をクリア
+      if (scrollInterval.current) {
+        clearInterval(scrollInterval.current);
+      }
+  
+      // スクロール処理を新たにセット
+      scrollInterval.current = setInterval(() => {
+        window.scrollBy(0, clientY < 100 ? -scrollSpeed : scrollSpeed);
+      }, scrollIntervalTime);
+    };
+  
+    const handleDragEnd = () => {
+      if (scrollInterval.current) {
+        clearInterval(scrollInterval.current);
+        scrollInterval.current = null;
+      }
+    };
+  
+    document.addEventListener("dragover", handleDragOver);
+    document.addEventListener("dragend", handleDragEnd);
+  
+    return () => {
+      document.removeEventListener("dragover", handleDragOver);
+      document.removeEventListener("dragend", handleDragEnd);
+      if (scrollInterval.current) {
+        clearInterval(scrollInterval.current);
+      }
+    };
+  }, []);
+
   return (
     <div>
       {/* 上部のボタン */}
@@ -89,8 +146,8 @@ const SelectionDragAndDrop = () => {
             key={status}
             onClick={() => scrollToSection(status)}
             style={{
-              padding: "15px 30px",
-              fontSize: "18px",
+              padding: "10px  15px",
+              fontSize: "12px",
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
@@ -160,7 +217,7 @@ const StatusColumn = ({ status, selections, moveItem, openModal }) => {
   );
 };
 
-const SelectionItemWithDrag = ({ selection, moveItem, openModal }) => {
+const SelectionItemWithDrag = ({ selection, openModal }) => {
   const [{ isDragging }, drag] = useDrag({
     type: CompanyItemTypes.SELECTION,
     item: { ...selection },

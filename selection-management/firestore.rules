@@ -1,11 +1,10 @@
 rules_version = '2';
 
 service cloud.firestore {
-  match /databases/{database}/documents {
-    // Selectionsコレクションのルール
-    match /companies/{companiesId} {
-      // 認証済みかつ自分のタスクのみ読み書き可能
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
-    }
-  }
+	match /databases/{database}/documents {
+		// ユーザー固有のデータにアクセスを許可
+		match /users/{uid}/selections/{selectionId} {
+			allow read, write: if request.auth != null && request.auth.uid == uid;
+		}
+	}
 }
