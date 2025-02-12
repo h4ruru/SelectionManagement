@@ -87,9 +87,13 @@ const CompanyAdd = () => {
           >
             <option value="説明会">説明会</option>
             <option value="一次面接">一次面接</option>
+            <option value="一次面接結果待ち">一次面接結果待ち</option>
             <option value="二次面接">二次面接</option>
+            <option value="二次面接結果待ち">二次面接結果待ち</option>
             <option value="三次面接">三次面接</option>
+            <option value="三次面接結果待ち">三次面接結果待ち</option>
             <option value="最終面接">最終面接</option>
+            <option value="内定">内定</option>
           </select>
           <input
             type="text"

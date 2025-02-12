@@ -5,7 +5,6 @@ const SelectionDetailModal = ({ selection, closeModal }) => {
     <div style={modalStyles.overlay}>
       <div style={modalStyles.modal}>
         <h2>Selection Detail</h2>
-        <p><strong>ID:</strong> {selection.id}</p>
         <p><strong>社名:</strong> {selection.title}</p>
         <p><strong>状態:</strong> {selection.status}</p>
         <p><strong>所在地:</strong> {selection.location}</p>
