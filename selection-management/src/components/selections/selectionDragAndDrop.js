@@ -90,10 +90,9 @@ const SelectionDragAndDrop = () => {
       
       let scrollSpeed = 0;
       let scrollIntervalTime = 0;
-  
-      // 位置に応じてスクロール速度を変更
+
       if (clientY < 100) {
-        scrollSpeed = 0.001; // 上端ギリギリなら少し速く
+        scrollSpeed = 0.001;
         scrollIntervalTime = 0.001;
       } else if (clientY > window.innerHeight - 100) {
         scrollSpeed = 0.001;

@@ -6,7 +6,7 @@ import { collection, addDoc } from "firebase/firestore";
 
 const CompanyAdd = () => {
   const [title, setTitle] = useState("");
-  const [status, setStatus] = useState("Selection");
+  const [status, setStatus] = useState("説明会");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
