@@ -90,14 +90,14 @@ const SelectionDragAndDrop = () => {
       
       let scrollSpeed = 0;
       let scrollIntervalTime = 0;
-  
-      // 位置に応じてスクロール速度を変更
-      if (clientY < 100) {
-        scrollSpeed = 0.001; // 上端ギリギリなら少し速く
-        scrollIntervalTime = 0.001;
-      } else if (clientY > window.innerHeight - 100) {
-        scrollSpeed = 0.001;
-        scrollIntervalTime = 0.001;
+      const Specifiedwidth = document.documentElement.clientHeight * 0.1;
+
+      if (clientY < Specifiedwidth) {
+        scrollSpeed = -1;
+        scrollIntervalTime = 4;
+      } else if (clientY > document.documentElement.clientHeight - Specifiedwidth) {
+        scrollSpeed = 1;
+        scrollIntervalTime = 4;
       } else {
         // スクロール不要なら停止
         if (scrollInterval.current) {
@@ -114,7 +114,7 @@ const SelectionDragAndDrop = () => {
   
       // スクロール処理を新たにセット
       scrollInterval.current = setInterval(() => {
-        window.scrollBy(0, clientY < 100 ? -scrollSpeed : scrollSpeed);
+        window.scrollBy(0, scrollSpeed);
       }, scrollIntervalTime);
     };
   
